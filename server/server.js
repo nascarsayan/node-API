@@ -38,11 +38,14 @@ app.get('/todos/:id', (req, res) => {
     return res.status(404).send();
   }
   Todo.findById(id).then((todo) => {
-    if (todo.length === 0) {
+    if (!todo) {
       return res.status(404).send();
     }
     res.status(200).send({todo});
-  }).catch(err => res.status(400).send());
+  }).catch(err => {
+    console.log(err);
+    res.status(400).send();
+  });
 });
 
 app.listen(3000, () => {
