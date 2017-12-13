@@ -15,7 +15,6 @@ const todos = [{
   completed: true,
   completedAt: 12345
 }];
-console.log(new ObjectID().toHexString());
 
 beforeEach((done) => {
   Todo.remove({}).then(() => {
