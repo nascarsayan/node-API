@@ -3,6 +3,7 @@ const config = require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
 const {ObjectID} = require('mongodb');
 
 var {mongoose} = require('./db/mongoose');
@@ -98,6 +99,40 @@ app.post('/users', (req, res) => {
 
 app.get('/users/me', authenticate, (req, res) => {
   res.send(req.user);
+});
+
+app.post('/users/login', (req, res) => {
+  var body = _.pick(req.body, ['email', 'password']);
+
+  User.findByCredentials(body.email, body.password).then((user) => {
+    return user.generateAuthTokens().then((token) => {
+      res.header('x-auth', token).send(user);
+    });
+    // res.send(user)
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+  // User.findOne({'email': body.email}).then((user) => {
+  //   bcrypt.compare(body.password, user.password, (err, isAuth) => {
+  //     if (err) {
+  //       console.log(err);
+  //       return res.status(500).send();
+  //     }
+  //     if (!isAuth) {
+  //       console.log('Unauthorized for wrong password');
+  //       return res.status(401).send();
+  //     }
+  //     return new Promise((resolve, reject) => {
+  //
+  //     });
+  //     return {user, token: user.generateAuthTokens()};
+  //   });
+  // }).then((docs) => {
+  //   res.header('x-auth', docs.token).send(docs.user);
+  // }).catch((err) => {
+  //   console.log(err);
+  //   res.status(401).send(err);
+  // });
 });
 
 app.listen(port, () => {
